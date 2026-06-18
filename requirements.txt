@@ -1,0 +1,14 @@
+# Multi-agent demo dependencies. Everything here is free and open source.
+#
+# crewai            - the multi-agent framework used by main.py. It pulls in
+#                     litellm, which is what lets us route requests to Google
+#                     Gemini via the model id "gemini/gemini-2.0-flash".
+# google-generativeai - the official Google Gemini SDK, used directly by
+#                     handoff_demo.py to show the framework-free version.
+#
+# Pin loosely so you get recent compatible releases. If you hit a resolver
+# conflict, a clean virtual environment fixes it 99% of the time:
+#     python -m venv .venv && source .venv/bin/activate
+
+crewai>=0.80.0
+google-generativeai>=0.8.0

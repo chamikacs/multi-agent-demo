@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>How multi-agent systems work</title>
+<meta name="description" content="A plain-language, interactive explainer of multi-agent AI systems: an orchestrator delegating to researcher, writer, and critic agents." />
+<style>
+  /* ---------------------------------------------------------------------
+     Design tokens. Light and dark are both defined; we follow the
+     operating-system preference by default and let the user override with
+     the toggle in the header. Everything is flat, with soft surfaces and a
+     single accent colour.
+  --------------------------------------------------------------------- */
+  :root {
+    --bg: #f7f8fa;
+    --surface: #ffffff;
+    --surface-2: #eef1f5;
+    --border: #d9dee6;
+    --text: #1a1f29;
+    --text-soft: #5a6473;
+    --accent: #3b6cf6;
+    --accent-soft: #e5edff;
+    --ok: #1f9d63;
+    --ok-soft: #e2f5ec;
+    --warn: #c9721a;
+    --warn-soft: #fbeedd;
+    --shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 4px 16px rgba(16, 24, 40, 0.06);
+    --radius: 14px;
+    --maxw: 920px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1218;
+      --surface: #171b23;
+      --surface-2: #1f242e;
+      --border: #2c333f;
+      --text: #e8ebf0;
+      --text-soft: #9aa4b2;
+      --accent: #6f97ff;
+      --accent-soft: #1c2740;
+      --ok: #4cc88a;
+      --ok-soft: #14271e;
+      --warn: #e0a35a;
+      --warn-soft: #2a2114;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 6px 20px rgba(0, 0, 0, 0.35);
+    }
+  }
+  /* Manual override classes win over the media query. */
+  html[data-theme="light"] {
+    --bg: #f7f8fa; --surface: #ffffff; --surface-2: #eef1f5; --border: #d9dee6;
+    --text: #1a1f29; --text-soft: #5a6473; --accent: #3b6cf6; --accent-soft: #e5edff;
+    --ok: #1f9d63; --ok-soft: #e2f5ec; --warn: #c9721a; --warn-soft: #fbeedd;
+    --shadow: 0 1px 2px rgba(16,24,40,.06), 0 4px 16px rgba(16,24,40,.06);
+  }
+  html[data-theme="dark"] {
+    --bg: #0f1218; --surface: #171b23; --surface-2: #1f242e; --border: #2c333f;
+    --text: #e8ebf0; --text-soft: #9aa4b2; --accent: #6f97ff; --accent-soft: #1c2740;
+    --ok: #4cc88a; --ok-soft: #14271e; --warn: #e0a35a; --warn-soft: #2a2114;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 6px 20px rgba(0,0,0,.35);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+    font-size: 17px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 20px; }
+  h1, h2, h3 { line-height: 1.25; font-weight: 650; }
+  h1 { font-size: clamp(1.7rem, 4vw, 2.4rem); margin: 0 0 .4em; letter-spacing: -0.02em; }
+  h2 { font-size: clamp(1.3rem, 3vw, 1.6rem); margin: 0 0 .6em; letter-spacing: -0.01em; }
+  h3 { font-size: 1.05rem; margin: 0 0 .3em; }
+  p { color: var(--text); }
+  a { color: var(--accent); }
+  .muted { color: var(--text-soft); }
+
+  /* Skip link for keyboard and screen-reader users. */
+  .skip {
+    position: absolute; left: -999px; top: 0; background: var(--accent);
+    color: #fff; padding: 10px 14px; border-radius: 0 0 8px 0; z-index: 100;
+  }
+  .skip:focus { left: 0; }
+
+  /* Header ------------------------------------------------------------- */
+  header.site {
+    position: sticky; top: 0; z-index: 20;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: saturate(140%) blur(10px);
+    border-bottom: 1px solid var(--border);
+  }
+  .site-inner {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; padding: 12px 20px; max-width: var(--maxw); margin: 0 auto;
+  }
+  .brand { font-weight: 650; font-size: .98rem; letter-spacing: -0.01em; }
+  .brand span { color: var(--text-soft); font-weight: 450; }
+  .theme-btn {
+    border: 1px solid var(--border); background: var(--surface); color: var(--text);
+    border-radius: 999px; padding: 7px 14px; font-size: .85rem; cursor: pointer;
+    font-family: inherit;
+  }
+  .theme-btn:hover { border-color: var(--accent); }
+  .theme-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* Sections ----------------------------------------------------------- */
+  section { padding: 56px 0; border-bottom: 1px solid var(--border); }
+  section:last-of-type { border-bottom: none; }
+  .eyebrow {
+    text-transform: uppercase; letter-spacing: .08em; font-size: .72rem;
+    font-weight: 650; color: var(--accent); margin: 0 0 10px;
+  }
+  .lead { font-size: 1.12rem; color: var(--text-soft); max-width: 60ch; }
+
+  .hero { padding-top: 64px; padding-bottom: 40px; }
+  .pill {
+    display: inline-block; background: var(--accent-soft); color: var(--accent);
+    border-radius: 999px; padding: 5px 12px; font-size: .78rem; font-weight: 600;
+    margin-bottom: 18px;
+  }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow);
+  }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 700px) { .grid-2 { grid-template-columns: 1fr; } }
+
+  /* Diagram ------------------------------------------------------------ */
+  .diagram-layout { display: grid; grid-template-columns: 1.1fr .9fr; gap: 22px; align-items: start; }
+  @media (max-width: 820px) { .diagram-layout { grid-template-columns: 1fr; } }
+
+  .flow {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 26px 20px; box-shadow: var(--shadow);
+  }
+  .node-row { display: flex; flex-direction: column; align-items: center; gap: 0; }
+  .node {
+    width: 100%; max-width: 320px; text-align: left; cursor: pointer;
+    border: 1.5px solid var(--border); background: var(--surface-2); color: var(--text);
+    border-radius: 12px; padding: 14px 16px; font-family: inherit; font-size: .96rem;
+    display: flex; align-items: center; gap: 12px; transition: border-color .15s, background .15s, transform .12s;
+  }
+  .node:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .node:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .node.active { border-color: var(--accent); background: var(--accent-soft); }
+  .node .tag {
+    font-size: .68rem; text-transform: uppercase; letter-spacing: .06em;
+    color: var(--text-soft); display: block;
+  }
+  .node .name { font-weight: 650; }
+  .node .dot {
+    width: 30px; height: 30px; border-radius: 8px; flex: 0 0 auto;
+    background: var(--accent); color: #fff; display: grid; place-items: center;
+    font-weight: 700; font-size: .95rem;
+  }
+  .node[data-agent="orchestrator"] .dot { background: #8a5cf6; }
+  .node[data-agent="researcher"]   .dot { background: #3b6cf6; }
+  .node[data-agent="writer"]       .dot { background: #1f9d63; }
+  .node[data-agent="critic"]       .dot { background: #c9721a; }
+
+  .arrow { color: var(--text-soft); font-size: 1.2rem; line-height: 1; padding: 7px 0; }
+  .loopback {
+    margin-top: 10px; width: 100%; max-width: 320px; text-align: center;
+    border: 1.5px dashed var(--warn); color: var(--warn); background: var(--warn-soft);
+    border-radius: 10px; padding: 8px 10px; font-size: .82rem; font-weight: 600;
+  }
+
+  .detail {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow);
+    min-height: 220px;
+  }
+  .detail .tag {
+    font-size: .7rem; text-transform: uppercase; letter-spacing: .07em;
+    color: var(--accent); font-weight: 650;
+  }
+  .detail h3 { margin: 6px 0 12px; font-size: 1.25rem; }
+  .detail dt { font-weight: 650; margin-top: 12px; font-size: .82rem; color: var(--text-soft); text-transform: uppercase; letter-spacing: .04em; }
+  .detail dd { margin: 2px 0 0; }
+
+  /* Simulation --------------------------------------------------------- */
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 18px; }
+  .btn {
+    border: none; background: var(--accent); color: #fff; cursor: pointer;
+    border-radius: 10px; padding: 11px 18px; font-size: .95rem; font-weight: 600;
+    font-family: inherit; transition: filter .15s, transform .12s;
+  }
+  .btn:hover { filter: brightness(1.06); }
+  .btn:active { transform: translateY(1px); }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+  .btn.secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+  .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .request {
+    background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px 14px; font-size: .92rem; margin-bottom: 16px;
+  }
+  .request strong { color: var(--text); }
+
+  .log { display: flex; flex-direction: column; gap: 12px; }
+  .msg {
+    border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px;
+    background: var(--surface); box-shadow: var(--shadow);
+    opacity: 0; transform: translateY(8px); animation: rise .35s ease forwards;
+  }
+  @keyframes rise { to { opacity: 1; transform: translateY(0); } }
+  @media (prefers-reduced-motion: reduce) {
+    .msg { animation: none; opacity: 1; transform: none; }
+    html { scroll-behavior: auto; }
+  }
+  .msg .who { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+  .msg .who .dot {
+    width: 26px; height: 26px; border-radius: 7px; display: grid; place-items: center;
+    color: #fff; font-weight: 700; font-size: .8rem; flex: 0 0 auto;
+  }
+  .msg[data-role="orchestrator"] .dot { background: #8a5cf6; }
+  .msg[data-role="researcher"]   .dot { background: #3b6cf6; }
+  .msg[data-role="writer"]       .dot { background: #1f9d63; }
+  .msg[data-role="critic"]       .dot { background: #c9721a; }
+  .msg[data-role="final"]        .dot { background: var(--text); }
+  .msg .who .label { font-weight: 650; }
+  .msg .who .step { margin-left: auto; font-size: .74rem; color: var(--text-soft); }
+  .msg .body { font-size: .94rem; color: var(--text); white-space: pre-line; }
+  .msg.reject { border-color: var(--warn); background: var(--warn-soft); }
+  .msg.final { border-color: var(--ok); background: var(--ok-soft); }
+  .badge {
+    display: inline-block; font-size: .72rem; font-weight: 700; padding: 2px 8px;
+    border-radius: 999px; margin-left: 8px;
+  }
+  .badge.warn { background: var(--warn); color: #fff; }
+  .badge.ok { background: var(--ok); color: #fff; }
+
+  .typing { display: inline-flex; gap: 4px; padding: 4px 0; }
+  .typing span {
+    width: 7px; height: 7px; border-radius: 50%; background: var(--text-soft);
+    animation: blink 1s infinite both;
+  }
+  .typing span:nth-child(2) { animation-delay: .2s; }
+  .typing span:nth-child(3) { animation-delay: .4s; }
+  @keyframes blink { 0%, 80%, 100% { opacity: .25; } 40% { opacity: 1; } }
+
+  /* Glossary ----------------------------------------------------------- */
+  .glossary { display: grid; gap: 10px; }
+  .term {
+    border: 1px solid var(--border); border-radius: 12px; background: var(--surface);
+    overflow: hidden;
+  }
+  .term summary {
+    cursor: pointer; padding: 14px 16px; font-weight: 650; list-style: none;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .term summary::-webkit-details-marker { display: none; }
+  .term summary:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .term summary .plus { color: var(--accent); font-weight: 700; transition: transform .2s; }
+  .term[open] summary .plus { transform: rotate(45deg); }
+  .term .def { padding: 0 16px 16px; color: var(--text-soft); }
+
+  footer { padding: 36px 0 60px; color: var(--text-soft); font-size: .9rem; }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="site">
+  <div class="site-inner">
+    <div class="brand">Multi-agent systems <span>&middot; an interactive explainer</span></div>
+    <button class="theme-btn" id="themeBtn" aria-label="Toggle light or dark theme">Theme</button>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- 1. INTRO -------------------------------------------------------- -->
+  <section class="hero wrap" aria-labelledby="intro-h">
+    <div class="pill">Plain-language guide</div>
+    <h1 id="intro-h">A team of AI agents, not one know-it-all</h1>
+    <p class="lead">
+      A single AI assistant tries to do everything at once: find the facts, write
+      the answer, and check its own work. It is fast, but it rarely catches its
+      own mistakes. A multi-agent system splits that job across a small team of
+      specialists who hand work to each other, just like people in an office.
+    </p>
+    <div class="grid-2" style="margin-top: 26px;">
+      <div class="card">
+        <h3>One agent</h3>
+        <p class="muted" style="margin:0;">
+          Researches, writes, and judges in a single step. No second opinion. If
+          it gets a fact wrong, the wrong fact goes straight into the answer.
+        </p>
+      </div>
+      <div class="card">
+        <h3>A team of agents</h3>
+        <p class="muted" style="margin:0;">
+          A researcher gathers facts, a writer shapes them, and a critic checks
+          the result and can send it back. Each agent does one job well.
+        </p>
+      </div>
+    </div>
+    <p class="muted" style="margin-top:22px;">
+      Scroll on for a clickable map of the team, a simulated run you can watch
+      step by step, and a short glossary.
+    </p>
+  </section>
+
+  <!-- 2. DIAGRAM ------------------------------------------------------ -->
+  <section class="wrap" aria-labelledby="diagram-h">
+    <p class="eyebrow">The team</p>
+    <h2 id="diagram-h">The orchestrator and its specialists</h2>
+    <p class="lead" style="margin-bottom: 24px;">
+      Click any agent to see what it does. The orchestrator runs the show; work
+      flows down the chain, and the critic can send it back up for another round.
+    </p>
+
+    <div class="diagram-layout">
+      <div class="flow" role="group" aria-label="Agent flow diagram">
+        <div class="node-row">
+          <button class="node active" data-agent="orchestrator" aria-pressed="true">
+            <span class="dot">O</span>
+            <span><span class="tag">Manager</span><span class="name">Orchestrator</span></span>
+          </button>
+          <div class="arrow" aria-hidden="true">&#8595;</div>
+          <button class="node" data-agent="researcher" aria-pressed="false">
+            <span class="dot">R</span>
+            <span><span class="tag">Step 1</span><span class="name">Researcher</span></span>
+          </button>
+          <div class="arrow" aria-hidden="true">&#8595;</div>
+          <button class="node" data-agent="writer" aria-pressed="false">
+            <span class="dot">W</span>
+            <span><span class="tag">Step 2</span><span class="name">Writer</span></span>
+          </button>
+          <div class="arrow" aria-hidden="true">&#8595;</div>
+          <button class="node" data-agent="critic" aria-pressed="false">
+            <span class="dot">C</span>
+            <span><span class="tag">Step 3</span><span class="name">Critic</span></span>
+          </button>
+          <div class="loopback" aria-hidden="true">
+            &#8624; if not good enough, the critic sends it back to research
+          </div>
+        </div>
+      </div>
+
+      <div class="detail" id="detail" aria-live="polite">
+        <!-- Filled by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. SIMULATION --------------------------------------------------- -->
+  <section class="wrap" aria-labelledby="sim-h">
+    <p class="eyebrow">Watch it work</p>
+    <h2 id="sim-h">Run the crew</h2>
+    <p class="lead" style="margin-bottom: 20px;">
+      Step through a real-shaped request one agent at a time. This is a scripted
+      simulation, so it needs no setup and no API key. It even includes one round
+      where the critic rejects the draft and sends it back.
+    </p>
+
+    <div class="request">
+      <strong>Incoming request:</strong> &ldquo;Research SaaS pricing models and
+      write a short summary for our team.&rdquo;
+    </div>
+
+    <div class="controls">
+      <button class="btn" id="runBtn">Run the crew</button>
+      <button class="btn secondary" id="stepBtn">Step once</button>
+      <button class="btn secondary" id="resetBtn" disabled>Reset</button>
+      <span class="muted" id="status" role="status" aria-live="polite"></span>
+    </div>
+
+    <div class="log" id="log" aria-label="Simulation output"></div>
+  </section>
+
+  <!-- 4. GLOSSARY ----------------------------------------------------- -->
+  <section class="wrap" aria-labelledby="glossary-h">
+    <p class="eyebrow">Reference</p>
+    <h2 id="glossary-h">Glossary</h2>
+    <p class="lead" style="margin-bottom: 22px;">The six words you need to follow any conversation about these systems.</p>
+    <div class="glossary" id="glossary"></div>
+  </section>
+
+  <footer class="wrap">
+    <p>
+      A teaching project. The same architecture shown here runs for real in the
+      accompanying Python demo using Google's Gemini free tier. See README.md and
+      ARTICLE.md in the repository.
+    </p>
+  </footer>
+</main>
+
+<script>
+/* =====================================================================
+   All behaviour is plain JavaScript with no dependencies. Three pieces:
+   (1) theme toggle, (2) the clickable diagram, (3) the scripted crew
+   simulation with a critic feedback loop.
+   ===================================================================== */
+
+/* ---- (1) Theme toggle ---------------------------------------------- */
+(function () {
+  const btn = document.getElementById("themeBtn");
+  const root = document.documentElement;
+  const saved = localStorage.getItem("theme");
+  if (saved) root.setAttribute("data-theme", saved);
+
+  function current() {
+    const attr = root.getAttribute("data-theme");
+    if (attr) return attr;
+    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  }
+  btn.addEventListener("click", function () {
+    const next = current() === "dark" ? "light" : "dark";
+    root.setAttribute("data-theme", next);
+    localStorage.setItem("theme", next);
+  });
+})();
+
+/* ---- (2) Clickable diagram ----------------------------------------- */
+(function () {
+  // Each agent's role, goal, and a plain-language description.
+  const AGENTS = {
+    orchestrator: {
+      tag: "Manager",
+      name: "Orchestrator",
+      role: "Runs the whole job and decides the order of work.",
+      goal: "Break the request into steps and pass each result to the next agent.",
+      plain: "The team lead. It does not do the research or the writing itself. It decides who works when, hands each agent what it needs, and decides when the work is finished. In the Python demo this is CrewAI's crew, not a separate prompt."
+    },
+    researcher: {
+      tag: "Step 1",
+      name: "Researcher",
+      role: "Senior research analyst.",
+      goal: "Gather and organize the most important, accurate facts.",
+      plain: "Goes first. It collects raw facts and lays them out as a tidy brief of key points and caveats. It does not write the final piece, it just makes sure the facts are right and well organized."
+    },
+    writer: {
+      tag: "Step 2",
+      name: "Writer",
+      role: "Technical writer.",
+      goal: "Turn the research brief into a clear, readable article.",
+      plain: "Takes the researcher's brief and shapes it into something pleasant to read. It only uses the facts it was handed, so it cannot wander off and invent things."
+    },
+    critic: {
+      tag: "Step 3",
+      name: "Critic",
+      role: "Editorial critic.",
+      goal: "Check the draft against the facts and approve it or send it back.",
+      plain: "The fresh set of eyes. It compares the draft with the original research, catches mistakes and fuzzy writing, and either polishes it or rejects it with specific fixes. This feedback loop is what makes the team better than any single agent."
+    }
+  };
+
+  const detail = document.getElementById("detail");
+  const nodes = Array.from(document.querySelectorAll(".node"));
+
+  function render(key) {
+    const a = AGENTS[key];
+    detail.innerHTML =
+      '<span class="tag">' + a.tag + '</span>' +
+      '<h3>' + a.name + '</h3>' +
+      '<dl>' +
+        '<dt>Role</dt><dd>' + a.role + '</dd>' +
+        '<dt>Goal</dt><dd>' + a.goal + '</dd>' +
+        '<dt>In plain language</dt><dd>' + a.plain + '</dd>' +
+      '</dl>';
+  }
+
+  function select(node) {
+    nodes.forEach(function (n) {
+      const on = n === node;
+      n.classList.toggle("active", on);
+      n.setAttribute("aria-pressed", on ? "true" : "false");
+    });
+    render(node.getAttribute("data-agent"));
+  }
+
+  nodes.forEach(function (n) {
+    n.addEventListener("click", function () { select(n); });
+  });
+
+  // Initial state: show the orchestrator.
+  render("orchestrator");
+})();
+
+/* ---- (3) Crew simulation ------------------------------------------- */
+(function () {
+  // The script. Each entry is one agent "turn". The critic's first turn is a
+  // rejection that loops back to a second research+write round, then approves.
+  const SCRIPT = [
+    {
+      role: "orchestrator", label: "Orchestrator", step: "Planning",
+      body: "Request received. Plan: 1) research SaaS pricing models, 2) write a short summary, 3) review before sending. Handing off to the researcher."
+    },
+    {
+      role: "researcher", label: "Researcher", step: "Step 1 of 3",
+      body: "Brief:\n- Flat-rate: one price for everything. Simple, but does not scale with value.\n- Per-seat: priced per user. Predictable, common in B2B.\n- Usage-based: pay for what you use. Aligns cost with value, harder to forecast.\n- Tiered: good / better / best bundles. Nudges upgrades.\n- Freemium: free entry tier to drive adoption, paid upgrades."
+    },
+    {
+      role: "writer", label: "Writer", step: "Step 2 of 3",
+      body: "Draft: \"SaaS companies price in a few main ways. Some charge a flat fee, others charge per user, and many now charge based on usage. Tiered plans and freemium offers are also popular. Pick the one that fits your customers.\""
+    },
+    {
+      role: "critic", label: "Critic", step: "Step 3 of 3",
+      reject: true,
+      body: "REVISE. The draft lists the models but never explains the trade-off that the team actually asked about. It is too vague to act on. Sending it back: add the key trade-off for each model and a one-line recommendation."
+    },
+    {
+      role: "orchestrator", label: "Orchestrator", step: "Looping back",
+      body: "Critic rejected the draft. Re-running research and writing with the critic's notes. (Retries are capped so this cannot loop forever.)"
+    },
+    {
+      role: "researcher", label: "Researcher", step: "Step 1, round 2",
+      body: "Refined brief with trade-offs:\n- Per-seat: predictable revenue, but penalizes teams for adding users.\n- Usage-based: revenue grows with value delivered, but bills are harder to predict.\n- Tiered + freemium together: free tier fills the funnel; tiers move buyers up.\nRecommendation hint: most modern B2B SaaS blends per-seat with usage-based."
+    },
+    {
+      role: "writer", label: "Writer", step: "Step 2, round 2",
+      body: "Revised draft: \"There are five common SaaS pricing models, each with a trade-off. Per-seat pricing is predictable but discourages adding users. Usage-based pricing grows with the value customers get, though bills are harder to forecast. Tiered plans and a freemium tier work well together to attract users and move them upmarket. For most B2B products today, a blend of per-seat and usage-based pricing is the safest starting point.\""
+    },
+    {
+      role: "critic", label: "Critic", step: "Step 3, round 2",
+      approve: true,
+      body: "APPROVED. Every model now has its trade-off, and there is a clear recommendation the team can act on. Accuracy checks out against the brief. Polishing lightly and finalizing."
+    },
+    {
+      role: "final", label: "Final answer", step: "Delivered",
+      final: true,
+      body: "There are five common SaaS pricing models, each with a trade-off. Per-seat pricing is predictable but discourages adding users. Usage-based pricing grows with the value customers receive, though bills are harder to forecast. Tiered plans and a freemium tier pair well: the free tier fills the funnel and the tiers move buyers upmarket. For most B2B products today, a blend of per-seat and usage-based pricing is the safest starting point."
+    }
+  ];
+
+  const log = document.getElementById("log");
+  const runBtn = document.getElementById("runBtn");
+  const stepBtn = document.getElementById("stepBtn");
+  const resetBtn = document.getElementById("resetBtn");
+  const statusEl = document.getElementById("status");
+
+  let index = 0;        // which script entry is next
+  let autoRunning = false;
+  let timer = null;
+
+  function setStatus(t) { statusEl.textContent = t; }
+
+  function reduceMotion() {
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  }
+
+  // Append a "thinking" placeholder, then swap in the real message so the user
+  // sees the agent take a beat before answering.
+  function showTyping(entry) {
+    const el = document.createElement("div");
+    el.className = "msg";
+    el.setAttribute("data-role", entry.role);
+    el.innerHTML =
+      '<div class="who">' +
+        '<span class="dot">' + entry.label.charAt(0) + '</span>' +
+        '<span class="label">' + entry.label + '</span>' +
+        '<span class="step">' + entry.step + '</span>' +
+      '</div>' +
+      '<div class="typing" aria-hidden="true"><span></span><span></span><span></span></div>';
+    log.appendChild(el);
+    el.scrollIntoView({ behavior: reduceMotion() ? "auto" : "smooth", block: "nearest" });
+    return el;
+  }
+
+  function fill(el, entry) {
+    let extra = "";
+    if (entry.reject) extra = '<span class="badge warn">sent back</span>';
+    if (entry.approve) extra = '<span class="badge ok">approved</span>';
+    if (entry.reject) el.classList.add("reject");
+    if (entry.final) el.classList.add("final");
+    el.innerHTML =
+      '<div class="who">' +
+        '<span class="dot">' + entry.label.charAt(0) + '</span>' +
+        '<span class="label">' + entry.label + extra + '</span>' +
+        '<span class="step">' + entry.step + '</span>' +
+      '</div>' +
+      '<div class="body">' + entry.body + '</div>';
+    el.scrollIntoView({ behavior: reduceMotion() ? "auto" : "smooth", block: "nearest" });
+  }
+
+  // Reveal exactly one step. Returns a promise that resolves when the message
+  // is fully shown, so the auto-runner can chain steps.
+  function revealOne() {
+    if (index >= SCRIPT.length) return Promise.resolve(false);
+    const entry = SCRIPT[index];
+    index++;
+    resetBtn.disabled = false;
+
+    const el = showTyping(entry);
+    const thinkMs = reduceMotion() ? 0 : 650;
+    setStatus(entry.label + " is working...");
+
+    return new Promise(function (resolve) {
+      setTimeout(function () {
+        fill(el, entry);
+        const done = index >= SCRIPT.length;
+        setStatus(done ? "Done. The critic approved the final answer." : "");
+        stepBtn.disabled = done;
+        if (done) runBtn.disabled = true;
+        resolve(true);
+      }, thinkMs);
+    });
+  }
+
+  function autoStep() {
+    if (!autoRunning) return;
+    revealOne().then(function (more) {
+      if (!more || index >= SCRIPT.length) {
+        autoRunning = false;
+        runBtn.disabled = true;
+        runBtn.textContent = "Run the crew";
+        return;
+      }
+      timer = setTimeout(autoStep, reduceMotion() ? 200 : 900);
+    });
+  }
+
+  runBtn.addEventListener("click", function () {
+    if (autoRunning) return;
+    if (index >= SCRIPT.length) return;
+    autoRunning = true;
+    runBtn.disabled = true;
+    stepBtn.disabled = true;
+    runBtn.textContent = "Running...";
+    autoStep();
+  });
+
+  stepBtn.addEventListener("click", function () {
+    if (autoRunning) return;
+    revealOne();
+  });
+
+  resetBtn.addEventListener("click", function () {
+    clearTimeout(timer);
+    autoRunning = false;
+    index = 0;
+    log.innerHTML = "";
+    setStatus("");
+    runBtn.disabled = false;
+    stepBtn.disabled = false;
+    resetBtn.disabled = true;
+    runBtn.textContent = "Run the crew";
+  });
+})();
+
+/* ---- (4) Glossary (rendered from data) ----------------------------- */
+(function () {
+  const TERMS = [
+    ["Orchestrator", "The manager agent. It breaks a request into steps, decides which agent does each step, passes results along, and decides when the job is done."],
+    ["Agent", "A single AI worker with a defined role, goal, and personality. On its own it is one language model; the power comes from combining several."],
+    ["Tool", "Something an agent can use beyond just talking, such as a web search, a database, or a calculator. Tools let agents act on the real world, not only describe it."],
+    ["MCP (Model Context Protocol)", "An open standard for the tool layer: a common way for any agent to discover and use external tools and data. Build the connector once, and any MCP-aware agent can use it."],
+    ["A2A (Agent-to-Agent)", "An open standard for the agent layer: a common way for separate agents, even from different teams or frameworks, to find each other and delegate tasks."],
+    ["Handoff", "The moment one agent passes its output to the next agent as input. It is the heart of a multi-agent system, and it is literally just one result becoming the next prompt."]
+  ];
+  const wrap = document.getElementById("glossary");
+  TERMS.forEach(function (t) {
+    const d = document.createElement("details");
+    d.className = "term";
+    d.innerHTML =
+      '<summary>' + t[0] + ' <span class="plus" aria-hidden="true">+</span></summary>' +
+      '<div class="def">' + t[1] + '</div>';
+    wrap.appendChild(d);
+  });
+})();
+</script>
+</body>
+</html>
