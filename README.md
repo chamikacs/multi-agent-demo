@@ -14,11 +14,10 @@ It contains three parts that tell the same story:
 
 All three describe the **same architecture**:
 
-```
-Orchestrator  ->  Researcher  ->  Writer  ->  Critic
-                                     ^            |
-                                     |____________|
-                                  "send it back"
+```mermaid
+flowchart LR
+    O[Orchestrator] --> R[Researcher] --> W[Writer] --> C[Critic]
+    C -- "send it back" --> W
 ```
 
 ## How it works (plain-language explanation)
@@ -63,24 +62,28 @@ link between Python and the page is the **`content.json`** data file the crew
 writes; when the page is served over http it loads that file, and when
 double-clicked it uses an identical built-in copy as a fallback.
 
-```
-  PYTHON SIDE (needs an API key)               BROWSER SIDE (no setup)
-  ========================================     ========================================
+```mermaid
+flowchart LR
+    subgraph PY["PYTHON SIDE (needs an API key)"]
+        M["main.py<br/>runs 4 real AI agents"] --> T1["prints a fresh article<br/>→ terminal"]
+        M --> CJ["writes content.json"]
+        HD["handoff_demo.py<br/>same flow, no framework"] --> T2["prints a fresh article<br/>→ terminal"]
+        ART["ARTICLE.md<br/>hand-written reference article"]
+    end
 
-   main.py -- runs 4 real AI agents
-      |
-      |--> prints a fresh article --> terminal
-      |
-      +--> writes --> content.json ----read by---> index.html (one self-contained file)
-                       (data only,                    |-- intro
-                        not a live call)              |-- clickable agent diagram
-                                                      |-- "run the crew" animation (FAKE:
-   handoff_demo.py -- same flow, no framework         |   pure JavaScript, no AI/Python)
-      |                                               +-- glossary
-      +--> prints a fresh article --> terminal        |
-                                                   double-click works too, using a
-   ARTICLE.md -- hand-written reference article    built-in fallback copy of the text
+    subgraph BR["BROWSER SIDE (no setup)"]
+        IDX["index.html<br/>(one self-contained file)"]
+        IDX --> I1[intro]
+        IDX --> I2[clickable agent diagram]
+        IDX --> I3["'run the crew' animation<br/>(FAKE: pure JavaScript, no AI/Python)"]
+        IDX --> I4[glossary]
+    end
+
+    CJ -- "read by<br/>(data only, not a live call)" --> IDX
 ```
+
+> Double-clicking `index.html` directly (no local server) works too — the page
+> falls back to a built-in copy of the same text.
 
 ## The free-stack rationale
 

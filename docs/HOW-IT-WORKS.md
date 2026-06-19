@@ -10,8 +10,8 @@ No prior coding knowledge needed.
 This project contains **two separate things** that teach the **same idea**:
 
 1. a **Python program** that really uses several AI "agents" to write an article, and
-2. a **web page** that *explains and animates* that idea so non-technical
-   colleagues can learn it with zero setup.
+2. a **web page** that *explains and animates* that idea so anyone, technical
+   or not, can learn it with zero setup.
 
 They are **not** wired together as one live system. The only thing passed between
 them is a small data file (`content.json`). Details below.
@@ -130,58 +130,45 @@ is just **data**, not a live function call:
 
 ## Diagram 1: what happens inside `main.py` (the real agents)
 
-```
-        You type a topic  -->  e.g. "multi-agent AI platforms"
-                 |
-                 v
-   +-----------------------------------------------+
-   |  ORCHESTRATOR  (the CrewAI "crew")            |   runs the steps in order
-   |  decides who works when, carries the results  |   and hands each output on
-   +-----------------------------------------------+
-                 |
-                 v
-        1) RESEARCHER   -- finds & organizes the facts
-                 |  (hands the brief to...)
-                 v
-        2) WRITER       -- turns facts into an article draft
-                 |  (hands the draft to...)
-                 v
-        3) CRITIC       -- checks it against the facts
-                 |              |
-                 |   not good?  +--> "send it back" --> redo (Researcher/Writer)
-                 |   good?
-                 v
-        4) CURRICULUM DESIGNER -- turns the lesson into teaching data
-                 |
-                 v
-   +---------------------------+      +-------------------------+
-   | prints the FINAL ARTICLE  |      | writes content.json     |
-   | in your terminal          |      | (text for the web page) |
-   +---------------------------+      +-------------------------+
+```mermaid
+flowchart TD
+    A["You type a topic<br/>e.g. 'multi-agent AI platforms'"] --> B
+    B["ORCHESTRATOR (the CrewAI 'crew')<br/>decides who works when, carries the results"] --> C
+    C["1) RESEARCHER<br/>finds & organizes the facts"] --> D
+    D["2) WRITER<br/>turns facts into an article draft"] --> E
+    E["3) CRITIC<br/>checks it against the facts"]
+    E -- "not good? send it back" --> C
+    E -- "good?" --> F
+    F["4) CURRICULUM DESIGNER<br/>turns the lesson into teaching data"] --> G
+    F --> H
+    G["prints the FINAL ARTICLE<br/>in your terminal"]
+    H["writes content.json<br/>(text for the web page)"]
 ```
 
 ## Diagram 2: how all the pieces fit together
 
-```
-  PYTHON SIDE - for YOU (needs an API key)        BROWSER SIDE - for COLLEAGUES (no setup)
-  ========================================        ========================================
+```mermaid
+flowchart LR
+    subgraph PY["PYTHON SIDE — needs an API key"]
+        M["main.py<br/>runs 4 real AI agents"] --> T1["prints a fresh article<br/>→ your terminal"]
+        M --> CJ["writes content.json"]
+        HD["handoff_demo.py<br/>same flow, no framework"] --> T2["prints a fresh article<br/>→ your terminal"]
+        ART["ARTICLE.md<br/>hand-written reference article<br/>(kept as-is, stands alone)"]
+    end
 
-   main.py -- runs 4 real AI agents
-      |
-      |--> prints a fresh article  --> your terminal
-      |
-      +--> writes --> content.json --------read by-------> index.html  (one self-contained file)
-                       (data only,                            |
-                        not a function call)                  |-- intro
-                                                              |-- clickable agent diagram
-   handoff_demo.py -- same flow, no framework                 |-- "run the crew" animation
-      |                                                       |   (FAKE: pure JavaScript,
-      +--> prints a fresh article --> your terminal           |    no AI, no Python)
-                                                              +-- glossary
-   ARTICLE.md -- hand-written reference article               |
-                 (kept as-is, stands alone)               double-click works too, using a
-                                                          built-in fallback copy of the text
+    subgraph BR["BROWSER SIDE — no setup needed"]
+        IDX["index.html<br/>(one self-contained file)"]
+        IDX --> I1[intro]
+        IDX --> I2[clickable agent diagram]
+        IDX --> I3["'run the crew' animation<br/>(FAKE: pure JavaScript, no AI, no Python)"]
+        IDX --> I4[glossary]
+    end
+
+    CJ -- "read by<br/>(data only, not a function call)" --> IDX
 ```
+
+> Double-clicking `index.html` directly (no local server) works too — the page
+> falls back to a built-in copy of the same text.
 
 The key takeaway: **the left side is the real engine** (it costs quota and
 needs setup); **the right side is a safe, free explainer**. They share an idea
