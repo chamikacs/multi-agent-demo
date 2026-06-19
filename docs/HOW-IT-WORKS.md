@@ -1,8 +1,7 @@
 # How it works (a plain-language walkthrough)
 
-This document explains the whole project in everyday language, with diagrams, so
-you can understand it yourself and teach it to colleagues. No prior coding
-knowledge needed.
+This document explains the whole project in everyday language, with diagrams.
+No prior coding knowledge needed.
 
 ---
 
@@ -94,7 +93,7 @@ generate. So you have:
 **No. The web page never runs Python and never calls any AI.** This is deliberate
 and important.
 
-The reason: your colleagues should be able to **double-click one file and learn**,
+The reason: anyone should be able to **double-click one file and learn**,
 with no installing Python, no API key, no internet or AI costs, and no risk of
 anything breaking.
 
@@ -123,7 +122,7 @@ is just **data**, not a live function call:
 
 - If you **serve the page** with a tiny local web server, it loads the
   crew-written `content.json`.
-- If a colleague just **double-clicks** the file, browsers block reading local
+- If someone just **double-clicks** the file, browsers block reading local
   files for security, so the page falls back to an **identical copy baked inside
   it**. Either way the page always works.
 
@@ -184,21 +183,21 @@ is just **data**, not a live function call:
                                                           built-in fallback copy of the text
 ```
 
-The key takeaway for teaching: **the left side is the real engine** (it costs
-quota and needs setup); **the right side is a safe, free explainer**. They share
-an idea and a data file, nothing more.
+The key takeaway: **the left side is the real engine** (it costs quota and
+needs setup); **the right side is a safe, free explainer**. They share an idea
+and a data file, nothing more.
 
 ---
 
-## How to teach it to colleagues (3 steps)
+## Suggested walkthrough (3 steps)
 
-1. **Show the picture** (Diagram 1): "One AI doing everything is sloppy. A team
-   with a critic is better."
-2. **Open `index.html`** and click "run the crew." Let them *watch* the handoff
-   and the rejection happen. No setup, instant understanding.
-3. **For the curious**, run `python main.py "their topic"` live to show real
-   agents writing a real article, then open `handoff_demo.py` to reveal there is
-   no magic underneath.
+1. **Look at the picture** (Diagram 1): one AI doing everything is sloppy; a
+   team with a critic is better.
+2. **Open `index.html`** and click "run the crew" to watch the handoff and a
+   Critic rejection happen. No setup, instant understanding.
+3. **For the curious**, run `python main.py "a topic"` to see real agents write
+   a real article, then open `handoff_demo.py` to see there is no magic
+   underneath.
 
 ---
 
