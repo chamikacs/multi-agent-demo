@@ -1,0 +1,125 @@
+{
+  "agents": [
+    {
+      "key": "orchestrator",
+      "tag": "Manager",
+      "name": "Orchestrator",
+      "role": "Manages the overall workflow and delegates tasks.",
+      "goal": "Ensure the final output meets the initial request by coordinating agents.",
+      "plain": "The Orchestrator is like a project manager. It takes the initial request, breaks it down into smaller tasks, and assigns them to the right agents. It also monitors progress and ensures everyone stays on track to deliver the final product."
+    },
+    {
+      "key": "researcher",
+      "tag": "Step 1",
+      "name": "Researcher",
+      "role": "Gathers and synthesizes information from various sources.",
+      "goal": "Provide accurate, comprehensive, and relevant data to support the task.",
+      "plain": "The Researcher dives into available information to find facts, figures, and context. It's responsible for making sure the data used by other agents is correct and covers all necessary aspects of the topic."
+    },
+    {
+      "key": "writer",
+      "tag": "Step 2",
+      "name": "Writer",
+      "role": "Composes clear, concise, and engaging content based on research.",
+      "goal": "Produce a well-structured and readable draft that addresses the request.",
+      "plain": "Once the research is done, the Writer takes that information and turns it into a coherent narrative or document. Its job is to make the content easy to understand and compelling for the target audience."
+    },
+    {
+      "key": "critic",
+      "tag": "Step 3",
+      "name": "Critic",
+      "role": "Evaluates content for quality, accuracy, and adherence to requirements.",
+      "goal": "Ensure the final output is high-quality, error-free, and meets all criteria before delivery.",
+      "plain": "The Critic acts as a quality control expert. It reviews the work produced by other agents, provides constructive feedback, and can send work back for revisions if it doesn't meet the required standards."
+    }
+  ],
+  "glossary": [
+    {
+      "term": "Orchestrator",
+      "definition": "The central agent that manages and coordinates the entire multi-agent system, delegating tasks and overseeing the workflow."
+    },
+    {
+      "term": "Agent",
+      "definition": "An autonomous software entity designed to perform specific tasks, communicate with other agents, and achieve defined goals."
+    },
+    {
+      "term": "Tool",
+      "definition": "A specific function or capability an agent can use to perform its task, such as searching the internet or generating images."
+    },
+    {
+      "term": "MCP (Model Context Protocol)",
+      "definition": "A standardized way for agents to share and understand the context of a task, ensuring consistent understanding across the system."
+    },
+    {
+      "term": "A2A (Agent-to-Agent)",
+      "definition": "Refers to the direct communication and interaction between different agents within a multi-agent system."
+    },
+    {
+      "term": "Handoff",
+      "definition": "The process of transferring a task or information from one agent to another within the workflow."
+    }
+  ],
+  "simulation": [
+    {
+      "role": "orchestrator",
+      "label": "Orchestrator",
+      "step": "Planning",
+      "body": "Okay team, we need to research the history of zero and provide a short summary for our team. Researcher, please gather comprehensive information on its origins and evolution across different cultures."
+    },
+    {
+      "role": "researcher",
+      "label": "Researcher",
+      "step": "Step 1 of 3: Researching",
+      "body": "I've compiled the key historical points on zero:\n\n- Early concepts of 'nothing' existed without a symbol.\n- Babylonians used a placeholder (two slanted wedges) around 300 BCE, but not as a number with arithmetic properties.\n- Mayans independently developed a zero symbol (shell glyph) around 36 BCE for their calendar, a true positional placeholder.\n- India is credited with developing zero as both a placeholder and a number with arithmetic properties. Early evidence includes the Bakhshali manuscript (dating debated), and Brahmagupta formalized rules in 628 CE.\n- Transmitted to the Islamic world (al-Khwarizmi) then to Europe (Fibonacci, 1202 CE), facing initial resistance.\n- Now fundamental to modern mathematics, calculus, and computing."
+    },
+    {
+      "role": "writer",
+      "label": "Writer",
+      "step": "Step 2 of 3: Drafting",
+      "body": "Here's a first draft of the summary based on the research:\n\n**The Remarkable Journey of Zero: From Placeholder to Powerhouse**\n\nZero, a concept we often take for granted, possesses a surprisingly rich and complex history. Its evolution from a mere symbol for 'nothing' to a fundamental number spanned millennia and continents, profoundly shaping mathematics and technology.\n\nEarly civilizations understood absence but lacked a symbol. The Babylonians used a placeholder (two wedges) around 300 BCE, but not as a number. Independently, the Mayans developed a true positional zero symbol (shell glyph) around 36 BCE for their calendar.\n\nAncient India is widely credited with transforming zero into both a placeholder and a number with arithmetic properties. Early evidence includes the Bakhshali manuscript. Brahmagupta formalized rules in 628 CE. The Indian system traveled to the Islamic world and then to Europe via Fibonacci in 1202 CE, facing initial resistance.\n\nZero eventually became a cornerstone of modern mathematics, enabling negative numbers, calculus, and binary code, fundamental to computing today."
+    },
+    {
+      "role": "critic",
+      "label": "Critic",
+      "step": "Step 3 of 3: Reviewing",
+      "body": "This is a good draft, but it needs a minor revision. While it mentions the Bakhshali manuscript's dating debate, it could more explicitly integrate the caveat about the broader ongoing scholarly debate regarding the earliest definitive archaeological evidence for zero as a *number* in India, as per the original brief. Please refine this point for clarity and completeness.",
+      "reject": true
+    },
+    {
+      "role": "orchestrator",
+      "label": "Orchestrator",
+      "step": "Looping back",
+      "body": "Understood, Critic. Writer, please review the Critic's feedback regarding the clarity on the scholarly debate around zero's origins in India. Researcher, can you provide a more explicit phrasing on this point for the writer to integrate?"
+    },
+    {
+      "role": "researcher",
+      "label": "Researcher",
+      "step": "Revising Research",
+      "body": "To clarify the point on India's zero: While the 9th-century Gwalior inscription is often cited, the precise earliest definitive archaeological evidence for zero as a number in India remains a subject of ongoing scholarly debate, particularly concerning the dating of artifacts like the Bakhshali manuscript."
+    },
+    {
+      "role": "writer",
+      "label": "Writer",
+      "step": "Revising Draft",
+      "body": "Here's the revised draft, incorporating the feedback:\n\n**The Remarkable Journey of Zero: From Placeholder to Powerhouse**\n\nZero, a concept we often take for granted, possesses a surprisingly rich and complex history. Its evolution from a mere symbol for 'nothing' to a fundamental number with its own arithmetic rules spanned millennia and continents, profoundly shaping mathematics and technology.\n\nEarly civilizations understood absence but lacked a symbol. The Babylonians used a placeholder (two slanted wedges) around 300 BCE, but not as a number. Independently, the Mayans developed a true positional zero symbol (shell glyph) around 36 BCE for their calendar.\n\nAncient India is widely credited with transforming zero into both a placeholder and a number with arithmetic properties. Early evidence includes dots used as placeholders in the Bakhshali manuscript (whose dating is debated). While the 9th-century Gwalior inscription is often cited, the precise earliest definitive archaeological evidence for zero as a number in India remains a subject of ongoing scholarly debate regarding the dating of artifacts like the Bakhshali manuscript. Brahmagupta formalized rules in 628 CE. The Indian system traveled to the Islamic world and then to Europe via Fibonacci in 1202 CE, facing initial resistance.\n\nZero eventually became a cornerstone of modern mathematics, enabling negative numbers, calculus, and binary code, fundamental to computing today."
+    },
+    {
+      "role": "critic",
+      "label": "Critic",
+      "step": "Final Review",
+      "body": "Excellent. The revised draft now clearly integrates the nuance regarding the scholarly debate on zero's origins in India. This is ready.",
+      "approve": true
+    },
+    {
+      "role": "final",
+      "label": "Delivered Answer",
+      "step": "Delivered",
+      "body": "### The Remarkable Journey of Zero: From Placeholder to Powerhouse\n\nZero, a concept we often take for granted, possesses a surprisingly rich and complex history. Far from being a simple idea, its evolution from a mere symbol for 'nothing' to a fundamental number with its own arithmetic rules spanned millennia and continents, profoundly shaping mathematics and technology.\n\n### Early Glimmers of Absence\n\nBefore zero gained its numerical status, many ancient civilizations understood the absence of quantity but lacked a dedicated symbol or numerical value for it. The ancient Babylonians made a significant step around 300 BCE. Within their base-60 positional system, they used a placeholder symbol – two slanted wedges – to denote empty positions within a number. Crucially, this symbol was not used at the end of a number and did not function as a numerical value with arithmetic properties. It was a positional marker, not a number itself.\n\n### Independent Innovation: The Mayan Zero\n\nAcross the globe, the Mayan civilization independently developed its own symbol for zero, often a shell-like glyph, around 36 BCE. Integrated into their base-20 numeral system, primarily for their intricate calendar calculations, this was a true positional placeholder. Unlike the Babylonian system, the Mayan zero could appear at any position, including the end of a number. This development occurred entirely separately from the Old World's progression.\n\n### India: Zero Becomes a Number\n\nAncient India is widely credited with transforming zero into both a placeholder in a positional numeral system and a number in its own right, complete with arithmetic properties. Early evidence includes dots used as placeholders in the Bakhshali manuscript (whose dating is debated, possibly 3rd-4th century CE). While the 9th-century Gwalior inscription is often cited as the earliest known inscription explicitly showing zero as a decimal number, the precise earliest definitive archaeological evidence for zero as a number in India remains a subject of ongoing scholarly debate regarding the dating of artifacts like the Bakhshali manuscript. The Indian mathematician Brahmagupta formalized these ideas in his 7th-century text, *Brahmasphutasiddhanta* (628 CE). He defined zero as the result of subtracting a number from itself and provided the first known rules for addition, subtraction, and multiplication involving zero, though his rules for division by zero were incorrect.\n\n### Global Transmission and Modern Impact\n\nThe revolutionary Indian numeral system, including zero, traveled to the Islamic world around the 8th and 9th centuries, notably through scholars like al-Khwarizmi. Islamic mathematicians adopted and further refined the system, playing a crucial role in its preservation and development. It was then introduced to Europe primarily by Fibonacci's *Liber Abaci* in 1202 CE. Initially, it faced resistance due to its novelty, its association with 'nothing' (which some found unsettling), and concerns from merchants and authorities about potential for fraud. Despite this, zero eventually became a cornerstone of modern mathematics. It enabled the development of negative numbers, unlocked the full potential of the decimal system, and is indispensable for calculus and binary code, which is fundamental to computing and virtually all scientific and engineering disciplines today.\n\n### Conclusion\n\nFrom a conceptual void to a powerful mathematical entity, the journey of zero is a testament to human ingenuity. Its profound evolution underscores how a seemingly simple idea can fundamentally transform our ability to understand, measure, and interact with the world.",
+      "final": true
+    }
+  ],
+  "_meta": {
+    "source": "crew"
+  },
+  "request": "Research the history of zero and write a short summary for our team."
+}

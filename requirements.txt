@@ -1,14 +1,24 @@
 # Multi-agent demo dependencies. Everything here is free and open source.
 #
-# crewai            - the multi-agent framework used by main.py. It pulls in
-#                     litellm, which is what lets us route requests to Google
-#                     Gemini via the model id "gemini/gemini-2.0-flash".
-# google-generativeai - the official Google Gemini SDK, used directly by
-#                     handoff_demo.py to show the framework-free version.
+# crewai             - the multi-agent framework used by main.py.
+# google-genai       - Google's current Gemini SDK. CrewAI 1.x uses it as the
+#                      native provider for "gemini/..." models, so main.py needs
+#                      it. (CrewAI's own error message recommends it via
+#                      `crewai[google-genai]`.)
+# google-generativeai - Google's older Gemini SDK, used DIRECTLY by
+#                      handoff_demo.py to show the framework-free version. It
+#                      still works but prints a deprecation notice; we keep it so
+#                      the no-framework demo stays a faithful, minimal example.
+# python-dotenv      - loads GEMINI_API_KEY (and optional GEMINI_MODEL) from a
+#                      local .env file, so you don't have to `export` it by hand
+#                      every terminal session.
 #
 # Pin loosely so you get recent compatible releases. If you hit a resolver
 # conflict, a clean virtual environment fixes it 99% of the time:
-#     python -m venv .venv && source .venv/bin/activate
+#     python3.12 -m venv .venv && source .venv/bin/activate
+# (CrewAI 1.x supports Python 3.10-3.13; 3.14 is not yet supported.)
 
-crewai>=0.80.0
+crewai>=1.0.0
+google-genai>=1.0.0
 google-generativeai>=0.8.0
+python-dotenv>=1.0.0

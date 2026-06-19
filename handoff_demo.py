@@ -20,17 +20,21 @@ arguments, and its orchestration is this `main()` function.
 HOW TO RUN
 ----------
     pip install -r requirements.txt
-    export GEMINI_API_KEY="your-key"     # link is in the error message below
+    cp .env.example .env   # then fill in GEMINI_API_KEY (read in automatically)
     python handoff_demo.py "your topic"
 """
 
 import os
 import sys
 
+# Loads variables from a .env file in this folder into the environment, so you
+# don't have to `export` the API key by hand every session.
+from dotenv import load_dotenv
 import google.generativeai as genai
 
+load_dotenv()
 
-MODEL_NAME = "gemini-2.0-flash"  # the free-tier model we use everywhere
+MODEL_NAME = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")  # free-tier model we use everywhere
 
 
 def configure() -> None:
@@ -41,7 +45,8 @@ def configure() -> None:
             "\nERROR: GEMINI_API_KEY is not set.\n"
             "\nThis project runs for FREE on Google's Gemini free tier.\n"
             "  1. Get a key (free, no credit card): https://aistudio.google.com/apikey\n"
-            "  2. Then run:  export GEMINI_API_KEY=\"your-key-here\"\n"
+            "  2. Copy .env.example to .env and paste the key in:\n"
+            "       cp .env.example .env\n"
         )
     genai.configure(api_key=api_key)
 
